@@ -1,0 +1,60 @@
+package process
+
+import "github.com/cookieo9/sequence"
+
+// MapFilter performs both a [Map] and [Filter] operation on the input sequence
+// where the convert function returns both the new value, and a boolean to
+// indicate if it should be added at all.
+//
+// MapFilter allows the callback to stop iteration with a generic error, or use
+// ErrStopIteration to simply indicate that no more values should be proceed.
+func MapFilter[In, Out any](s sequence.Sequence[In], convert func(In) (Out, bool, error)) sequence.Sequence[Out] {
+	return Process[In, Out](s, func(i In, f func(Out)) error {
+		out, ok, err := convert(i)
+		if ok && err == nil {
+			f(out)
+		}
+		return err
+	})
+}
+
+// Map takes in an input sequence and returns a sequence where every input
+// value is permuted by the provided convert function. The new sequence may
+// be of a different type due to the conversion, but will have the same number
+// of items.
+func Map[In, Out any](s sequence.Sequence[In], convert func(In) Out) sequence.Sequence[Out] {
+	return MapFilter(s, func(in In) (Out, bool, error) {
+		return convert(in), true, nil
+	})
+}
+
+// MapErr takes in an input sequence and returns a sequence where every input
+// value is permuted by the provided convert function. The new sequence may
+// be of a different type due to the conversion, but will have the same number
+// of items.
+//
+// MapErr allows the callback to stop iteration with a generic error, or use
+// ErrStopIteration to simply indicate that no more values should be proceed.
+func MapErr[In, Out any](s sequence.Sequence[In], convert func(In) (Out, error)) sequence.Sequence[Out] {
+	return MapFilter(s, func(in In) (Out, bool, error) {
+		out, err := convert(in)
+		return out, true, err
+	})
+}
+
+// Filter takes an input sequence and creates a sequence where only the values
+// that pass the provided predicate function will be emitted. The ouput
+// sequence will be the same type as the input sequence.
+func Filter[T any](s sequence.Sequence[T], pred func(T) bool) sequence.Sequence[T] {
+	return MapFilter(s, func(t T) (T, bool, error) { return t, pred(t), nil })
+}
+
+// FilterErr takes an input sequence and creates a sequence where only the
+// values that pass the provided predicate function will be emitted. The ouput
+// sequence will have the same element type as the input sequence.
+//
+// FilterErr allows the callback to stop iteration with a generic error, or use
+// ErrStopIteration to simply indicate that no more values should be proceed.
+func FilterErr[T any](s sequence.Sequence[T], pred func(T) (bool, error)) sequence.Sequence[T] {
+	return MapFilter(s, func(t T) (T, bool, error) { ok, err := pred(t); return t, ok, err })
+}
