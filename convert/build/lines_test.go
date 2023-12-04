@@ -1,4 +1,4 @@
-package io
+package build_test
 
 import (
 	"errors"
@@ -8,8 +8,9 @@ import (
 	"testing/quick"
 
 	"github.com/cookieo9/sequence"
+	"github.com/cookieo9/sequence/convert/build"
+	"github.com/cookieo9/sequence/convert/extract"
 	"github.com/cookieo9/sequence/process"
-	"github.com/cookieo9/sequence/single"
 	"github.com/cookieo9/sequence/tools"
 )
 
@@ -24,7 +25,7 @@ func quickFunc(gen func(io.Reader) sequence.Sequence[string]) func([]string) (st
 		full := strings.Join(s, "\n")
 		seq := gen(strings.NewReader(full))
 		num := 0
-		result, err := single.Collect(seq, "", func(line, merged string) string {
+		result, err := extract.Collect(seq, "", func(line, merged string) string {
 			num++
 			return merged + line
 		})
@@ -35,7 +36,7 @@ func quickFunc(gen func(io.Reader) sequence.Sequence[string]) func([]string) (st
 
 func TestLines(t *testing.T) {
 	linesWrap := func(r io.Reader) sequence.Sequence[string] {
-		return Lines(r)
+		return build.Lines(r)
 	}
 	base := linesWrap
 	testCases := []struct {
@@ -60,7 +61,7 @@ func TestLines(t *testing.T) {
 }
 
 func TestLinesBad(t *testing.T) {
-	seq := Lines(strings.NewReader(text))
+	seq := build.Lines(strings.NewReader(text))
 	coolErr := errors.New("my cool error")
 
 	err := sequence.Each(seq)(func(s string) error {
