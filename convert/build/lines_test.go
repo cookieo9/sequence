@@ -44,7 +44,7 @@ func TestLines(t *testing.T) {
 		gen  func(io.Reader) sequence.Sequence[string]
 	}{
 		{"Lines", linesWrap},
-		{"Materialized", tools.Compose(linesWrap, process.Materialize[string])},
+		{"Materialized", tools.Compose(linesWrap, sequence.Sequence[string].Materialize)},
 		{"Buffered", tools.Compose(linesWrap, process.Buffer[string])},
 	}
 

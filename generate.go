@@ -1,9 +1,5 @@
 package sequence
 
-type funcSequence[T any] func(func(T) error) error
-
-func (f funcSequence[T]) Each(fn func(T) error) error { return f(fn) }
-
 // Generate is used to create a sequence manually from a "sequence function".
 // A sequence function represents the for loop that will produce all the values
 // of the sequence, passing them to a callback. The callback returns an error
@@ -17,5 +13,11 @@ func (f funcSequence[T]) Each(fn func(T) error) error { return f(fn) }
 // simplicity (unless it intends to wrap all errors), and to allow the
 // top-level of the sequence processing to see it (or a wrapped version).
 func Generate[T any](f func(func(T) error) error) Sequence[T] {
-	return funcSequence[T](f)
+	return Sequence[T]{source: f}
+}
+
+// GenerateVolatile is a helper to do the following: Volatile(Generate(f)).
+// It creates a volatile sequence from the provided sequence function.
+func GenerateVolatile[T any](f func(func(T) error) error) Sequence[T] {
+	return Volatile(Generate(f))
 }

@@ -14,11 +14,11 @@ import (
 // single time, as it can't "go back" and return old lines, since none are
 // stored.
 //
-// If you need to use the lines multiple times, consider using,
-// [process.Materialize], or [process.Buffer] to wrap the sequence.
-func Lines(r io.Reader) sequence.VolatileSequence[string] {
+// If you need to use the lines multiple times, consider calling Materialize on
+// the returned sequence, or wrap it with [process.Buffer].
+func Lines(r io.Reader) sequence.Sequence[string] {
 	scn := bufio.NewScanner(r)
-	s := sequence.Generate[string](func(f func(string) error) error {
+	return sequence.GenerateVolatile(func(f func(string) error) error {
 		for scn.Scan() {
 			if err := f(scn.Text()); err != nil {
 				return err
@@ -26,5 +26,4 @@ func Lines(r io.Reader) sequence.VolatileSequence[string] {
 		}
 		return scn.Err()
 	})
-	return sequence.Volatile(s)
 }
