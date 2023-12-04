@@ -1,6 +1,9 @@
 package extract
 
-import "github.com/cookieo9/sequence"
+import (
+	"github.com/cookieo9/sequence"
+	"github.com/cookieo9/sequence/tools"
+)
 
 // CollectErr produces a single value from a sequence. It starts with an
 // initial output value, and for every item in the sequence the value is
@@ -25,4 +28,23 @@ func Collect[T, U any](s sequence.Sequence[T], initial U, process func(T, U) U) 
 	return CollectErr[T, U](s, initial, func(t T, u U) (U, error) {
 		return process(t, u), nil
 	})
+}
+
+// First returns the first value from the given sequence, or an error if even
+// that isn't possible.
+func First[T any](s sequence.Sequence[T]) (T, error) {
+	var value T
+	err := sequence.EachSimple(s)(func(t T) bool { value = t; return false })
+	return tools.CleanErrors(value, err)
+}
+
+// Last returns the final value from the given sequence and any error should
+// the sequence end with an error. Unlike most functions both value and error
+// will be returns as it's really upto the caller to determine if an error
+// should stop downstream processing in this case. Note: ErrStopIteration
+// will still be suppressed as normal as it indicates early exit without error.
+func Last[T any](s sequence.Sequence[T]) (T, error) {
+	var value T
+	err := sequence.EachSimple(s)(func(t T) bool { value = t; return true })
+	return value, err
 }

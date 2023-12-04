@@ -12,7 +12,7 @@ func Limit[T any](s sequence.Sequence[T], n int) sequence.Sequence[T] {
 				i++
 				return f(t)
 			}
-			return nil
+			return sequence.ErrStopIteration
 		})
 	})
 }
