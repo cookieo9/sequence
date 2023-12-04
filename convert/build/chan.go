@@ -1,4 +1,4 @@
-package chans
+package build
 
 import "github.com/cookieo9/sequence"
 

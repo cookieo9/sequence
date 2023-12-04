@@ -1,4 +1,4 @@
-package chans
+package extract
 
 import (
 	"context"
@@ -46,9 +46,9 @@ func IntoChanPair[T any](ch chan<- sequence.Pair[T, error], s sequence.Sequence[
 	}
 }
 
-// AsChan returns a channel that will receive the values from the sequence. If
+// ToChan returns a channel that will receive the values from the sequence. If
 // the sequence produces an error, then this code will panic.
-func AsChan[T any](s sequence.Sequence[T]) <-chan T {
+func ToChan[T any](s sequence.Sequence[T]) <-chan T {
 	ch := make(chan T)
 	go func() {
 		defer close(ch)
@@ -59,9 +59,9 @@ func AsChan[T any](s sequence.Sequence[T]) <-chan T {
 	return ch
 }
 
-// AsChanErr returns 2 channels, the first containing items from the sequence,
+// ToChanErr returns 2 channels, the first containing items from the sequence,
 // and the second will receive an error if the sequence failed with that error.
-func AsChanErr[T any](s sequence.Sequence[T]) (<-chan T, <-chan error) {
+func ToChanErr[T any](s sequence.Sequence[T]) (<-chan T, <-chan error) {
 	ch := make(chan T)
 	eCh := make(chan error)
 	go func() {
@@ -74,20 +74,20 @@ func AsChanErr[T any](s sequence.Sequence[T]) (<-chan T, <-chan error) {
 	return ch, eCh
 }
 
-// AsChanPair returns a channel whose elements are Pair[T,error] such that
+// ToChanPair returns a channel whose elements are Pair[T,error] such that
 // errors that arise while processing the sequence will return a <zero,err>
 // Pair.
-func AsChanPair[T any](s sequence.Sequence[T]) <-chan sequence.Pair[T, error] {
+func ToChanPair[T any](s sequence.Sequence[T]) <-chan sequence.Pair[T, error] {
 	ch := make(chan sequence.Pair[T, error])
 	go IntoChanPair(ch, s)
 	return ch
 }
 
-// AsChanCtx returns a channel and a context where the channel returns values
+// ToChanCtx returns a channel and a context where the channel returns values
 // emitted from the input sequence, and the context will be cancelled if the
 // sequence returns an error. An input context is used as the basis of the
 // generated context, and can be used to cancel processing externally.
-func AsChanCtx[T any](ctx context.Context, s sequence.Sequence[T]) (<-chan T, context.Context) {
+func ToChanCtx[T any](ctx context.Context, s sequence.Sequence[T]) (<-chan T, context.Context) {
 	ch := make(chan T)
 	ctx, cncl := context.WithCancelCause(ctx)
 	go func() {

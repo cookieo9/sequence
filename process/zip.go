@@ -2,14 +2,14 @@ package process
 
 import (
 	"github.com/cookieo9/sequence"
-	"github.com/cookieo9/sequence/chans"
 	"github.com/cookieo9/sequence/convert/build"
+	"github.com/cookieo9/sequence/convert/extract"
 	"github.com/cookieo9/sequence/tools"
 )
 
 func zipCommon[A, B any](aSeq sequence.Sequence[A], bSeq sequence.Sequence[B], shortest bool) sequence.Sequence[sequence.Pair[A, B]] {
-	aCh := chans.AsChanPair(aSeq)
-	bCh := chans.AsChanPair(bSeq)
+	aCh := extract.ToChanPair(aSeq)
+	bCh := extract.ToChanPair(bSeq)
 	return sequence.Generate(func(f func(sequence.Pair[A, B]) error) error {
 		for {
 			aP, aOk := <-aCh
