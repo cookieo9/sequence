@@ -4,7 +4,8 @@ import (
 	"sync"
 
 	"github.com/cookieo9/sequence"
-	"github.com/cookieo9/sequence/slices"
+	"github.com/cookieo9/sequence/convert/build"
+	"github.com/cookieo9/sequence/convert/extract"
 	"github.com/cookieo9/sequence/tools"
 )
 
@@ -21,11 +22,11 @@ import (
 // entire sequence passed to Materialize will be processed immediately before
 // returning the new sequence.
 func Materialize[T any](s sequence.Sequence[T]) sequence.Sequence[T] {
-	data, err := slices.Collect(s)
+	data, err := extract.ToSlice(s)
 	if err != nil {
-		return sequence.Generate(func(f func(T) error) error { return err })
+		return build.Error[T](err)
 	}
-	return slices.AsSequence(data)
+	return build.FromSlice(data)
 }
 
 // Buffer is like [Materialize] in that it keeps a cached copy of data from an

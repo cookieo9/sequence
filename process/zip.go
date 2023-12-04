@@ -2,14 +2,14 @@ package process
 
 import (
 	"github.com/cookieo9/sequence"
-	"github.com/cookieo9/sequence/chans"
-	"github.com/cookieo9/sequence/single"
+	"github.com/cookieo9/sequence/convert/build"
+	"github.com/cookieo9/sequence/convert/extract"
 	"github.com/cookieo9/sequence/tools"
 )
 
 func zipCommon[A, B any](aSeq sequence.Sequence[A], bSeq sequence.Sequence[B], shortest bool) sequence.Sequence[sequence.Pair[A, B]] {
-	aCh := chans.AsChanPair(aSeq)
-	bCh := chans.AsChanPair(bSeq)
+	aCh := extract.ToChanPair(aSeq)
+	bCh := extract.ToChanPair(bSeq)
 	return sequence.Generate(func(f func(sequence.Pair[A, B]) error) error {
 		for {
 			aP, aOk := <-aCh
@@ -63,14 +63,14 @@ func SecondOnly[A, B any](s sequence.Sequence[sequence.Pair[A, B]]) sequence.Seq
 // and a value from a given sequence. The constant value is the first item
 // in the pair.
 func AddFirst[A, T any](a A, s sequence.Sequence[T]) sequence.Sequence[sequence.Pair[A, T]] {
-	return Zip[A, T](single.Infinite(a), s)
+	return Zip[A, T](build.Infinite(a), s)
 }
 
 // AddSecond creates a sequence where each item is a pair of a constant value
 // and a value from a given sequence. The constant value is the second item
 // in the pair.
 func AddSecond[T, B any](s sequence.Sequence[T], b B) sequence.Sequence[sequence.Pair[T, B]] {
-	return Zip[T, B](s, single.Infinite(b))
+	return Zip[T, B](s, build.Infinite(b))
 }
 
 // SwapPairs processes a sequence with Pair[A,B] elements to produce one where
