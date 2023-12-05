@@ -1,16 +1,13 @@
-package process
+package sequence
 
 import (
-	"github.com/cookieo9/sequence"
-	"github.com/cookieo9/sequence/convert/build"
-	"github.com/cookieo9/sequence/convert/extract"
 	"github.com/cookieo9/sequence/tools"
 )
 
-func zipCommon[A, B any](aSeq sequence.Sequence[A], bSeq sequence.Sequence[B], shortest bool) sequence.Sequence[sequence.Pair[A, B]] {
-	aCh := extract.ToChanPair(aSeq)
-	bCh := extract.ToChanPair(bSeq)
-	return sequence.Generate(func(f func(sequence.Pair[A, B]) error) error {
+func zipCommon[A, B any](aSeq Sequence[A], bSeq Sequence[B], shortest bool) Sequence[Pair[A, B]] {
+	aCh := ToChanPair(aSeq)
+	bCh := ToChanPair(bSeq)
+	return Generate(func(f func(Pair[A, B]) error) error {
 		for {
 			aP, aOk := <-aCh
 			bP, bOk := <-bCh
@@ -26,7 +23,7 @@ func zipCommon[A, B any](aSeq sequence.Sequence[A], bSeq sequence.Sequence[B], s
 			if err := tools.Or(aErr, bErr); err != nil {
 				return err
 			}
-			if err := f(sequence.MakePair(aV, bV)); err != nil {
+			if err := f(MakePair(aV, bV)); err != nil {
 				return err
 			}
 		}
@@ -38,43 +35,43 @@ func zipCommon[A, B any](aSeq sequence.Sequence[A], bSeq sequence.Sequence[B], s
 // contains an item from the first sequence matched up with one from the second
 // sequence. When one seqence ends, the zipped sequence continues producing
 // Pairs where one element is the zero value until both sequences are finished.
-func Zip[A, B any](aSeq sequence.Sequence[A], bSeq sequence.Sequence[B]) sequence.Sequence[sequence.Pair[A, B]] {
+func Zip[A, B any](aSeq Sequence[A], bSeq Sequence[B]) Sequence[Pair[A, B]] {
 	return zipCommon(aSeq, bSeq, false)
 }
 
 // ZipShortest is like [Zip], but stops once one sequence is empty.
-func ZipShortest[A, B any](aSeq sequence.Sequence[A], bSeq sequence.Sequence[B]) sequence.Sequence[sequence.Pair[A, B]] {
+func ZipShortest[A, B any](aSeq Sequence[A], bSeq Sequence[B]) Sequence[Pair[A, B]] {
 	return zipCommon(aSeq, bSeq, true)
 }
 
 // FirstOnly takes a sequence of Pair values, and returns a sequence of just
 // the first value from each pair.
-func FirstOnly[A, B any](s sequence.Sequence[sequence.Pair[A, B]]) sequence.Sequence[A] {
-	return Map(s, sequence.Pair[A, B].A)
+func FirstOnly[A, B any](s Sequence[Pair[A, B]]) Sequence[A] {
+	return Map(s, Pair[A, B].A)
 }
 
 // SecondOnly takes a sequence of Pair values, and returns a sequence of just
 // the second value from each pair.
-func SecondOnly[A, B any](s sequence.Sequence[sequence.Pair[A, B]]) sequence.Sequence[B] {
-	return Map(s, sequence.Pair[A, B].B)
+func SecondOnly[A, B any](s Sequence[Pair[A, B]]) Sequence[B] {
+	return Map(s, Pair[A, B].B)
 }
 
 // AddFirst creates a sequence where each item is a pair of a constant value
 // and a value from a given sequence. The constant value is the first item
 // in the pair.
-func AddFirst[A, T any](a A, s sequence.Sequence[T]) sequence.Sequence[sequence.Pair[A, T]] {
-	return Zip[A, T](build.Infinite(a), s)
+func AddFirst[A, T any](a A, s Sequence[T]) Sequence[Pair[A, T]] {
+	return Zip[A, T](Infinite(a), s)
 }
 
 // AddSecond creates a sequence where each item is a pair of a constant value
 // and a value from a given sequence. The constant value is the second item
 // in the pair.
-func AddSecond[T, B any](s sequence.Sequence[T], b B) sequence.Sequence[sequence.Pair[T, B]] {
-	return Zip[T, B](s, build.Infinite(b))
+func AddSecond[T, B any](s Sequence[T], b B) Sequence[Pair[T, B]] {
+	return Zip[T, B](s, Infinite(b))
 }
 
 // SwapPairs processes a sequence with Pair[A,B] elements to produce one where
 // the elements in the pair are swapped (i.e. Pair[B,A]).
-func SwapPairs[A, B any](s sequence.Sequence[sequence.Pair[A, B]]) sequence.Sequence[sequence.Pair[B, A]] {
-	return Map(s, sequence.Pair[A, B].Swap)
+func SwapPairs[A, B any](s Sequence[Pair[A, B]]) Sequence[Pair[B, A]] {
+	return Map(s, Pair[A, B].Swap)
 }

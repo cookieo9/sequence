@@ -21,3 +21,8 @@ func Generate[T any](f func(func(T) error) error) Sequence[T] {
 func GenerateVolatile[T any](f func(func(T) error) error) Sequence[T] {
 	return Volatile(Generate(f))
 }
+
+// New creates a simple sequence using the provided items.
+func New[T any](items ...T) Sequence[T] {
+	return FromSlice(items)
+}

@@ -14,13 +14,8 @@ package sequence
 //
 // Otherwise, it's other main use is to overcome the limitations of volatile
 // sequences.
-func (s Sequence[T]) Materialize() Sequence[T] {
-	var data []T
-	srcErr := EachSimple[T](s)(func(item T) bool {
-		data = append(data, item)
-		return true
-	})
-
+func Materialize[T any](s Sequence[T]) Sequence[T] {
+	data, srcErr := ToSlice(s)
 	return Generate[T](func(f func(T) error) error {
 		for _, x := range data {
 			if err := f(x); err != nil {
@@ -29,4 +24,10 @@ func (s Sequence[T]) Materialize() Sequence[T] {
 		}
 		return srcErr
 	})
+}
+
+// Materialize is a utility method that calls the package level function
+// [Materialize] on this sequence.
+func (s Sequence[T]) Materialize() Sequence[T] {
+	return Materialize(s)
 }

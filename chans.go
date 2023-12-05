@@ -1,14 +1,25 @@
-package extract
+package sequence
 
 import (
 	"context"
-
-	"github.com/cookieo9/sequence"
 )
+
+// FromChan produces a sequence from the provided channel. The new sequence is
+// volatile since the channel itself can only be iterated over once.
+func FromChan[T any](ch <-chan T) Sequence[T] {
+	return GenerateVolatile(func(f func(T) error) error {
+		for x := range ch {
+			if err := f(x); err != nil {
+				return err
+			}
+		}
+		return nil
+	})
+}
 
 // IntoChan sends the contents of the sequence into the channel. If an error
 // occurs processing the sequence it will be returned.
-func IntoChan[T any](ch chan<- T, s sequence.Sequence[T]) error {
+func IntoChan[T any](ch chan<- T, s Sequence[T]) error {
 	return IntoChanCtx(context.Background(), ch, s)
 }
 
@@ -16,9 +27,9 @@ func IntoChan[T any](ch chan<- T, s sequence.Sequence[T]) error {
 // occurs processing the sequence it will be returned.
 // The provided context will be consulted for an alternate reason to stop
 // iteration.
-func IntoChanCtx[T any](ctx context.Context, ch chan<- T, s sequence.Sequence[T]) error {
+func IntoChanCtx[T any](ctx context.Context, ch chan<- T, s Sequence[T]) error {
 	defer close(ch)
-	return sequence.Each(s)(func(t T) error {
+	return Each(s)(func(t T) error {
 		select {
 		case ch <- t:
 			return nil
@@ -26,7 +37,7 @@ func IntoChanCtx[T any](ctx context.Context, ch chan<- T, s sequence.Sequence[T]
 			if err := ctx.Err(); err != nil {
 				return err
 			}
-			return sequence.ErrStopIteration
+			return ErrStopIteration
 		}
 	})
 }
@@ -35,20 +46,20 @@ func IntoChanCtx[T any](ctx context.Context, ch chan<- T, s sequence.Sequence[T]
 // Pair[T,error] for the purpose of passing on the error from the sequence
 // should one occur. If such an error happens it will be in a <zero,error>
 // element on its own.
-func IntoChanPair[T any](ch chan<- sequence.Pair[T, error], s sequence.Sequence[T]) {
+func IntoChanPair[T any](ch chan<- Pair[T, error], s Sequence[T]) {
 	defer close(ch)
-	err := sequence.Each(s)(func(t T) error {
-		ch <- sequence.MakePair[T, error](t, nil)
+	err := Each(s)(func(t T) error {
+		ch <- MakePair[T, error](t, nil)
 		return nil
 	})
 	if err != nil {
-		ch <- sequence.MakePair(*new(T), err)
+		ch <- MakePair(*new(T), err)
 	}
 }
 
 // ToChan returns a channel that will receive the values from the sequence. If
 // the sequence produces an error, then this code will panic.
-func ToChan[T any](s sequence.Sequence[T]) <-chan T {
+func ToChan[T any](s Sequence[T]) <-chan T {
 	ch := make(chan T)
 	go func() {
 		defer close(ch)
@@ -61,7 +72,7 @@ func ToChan[T any](s sequence.Sequence[T]) <-chan T {
 
 // ToChanErr returns 2 channels, the first containing items from the sequence,
 // and the second will receive an error if the sequence failed with that error.
-func ToChanErr[T any](s sequence.Sequence[T]) (<-chan T, <-chan error) {
+func ToChanErr[T any](s Sequence[T]) (<-chan T, <-chan error) {
 	ch := make(chan T)
 	eCh := make(chan error)
 	go func() {
@@ -77,8 +88,8 @@ func ToChanErr[T any](s sequence.Sequence[T]) (<-chan T, <-chan error) {
 // ToChanPair returns a channel whose elements are Pair[T,error] such that
 // errors that arise while processing the sequence will return a <zero,err>
 // Pair.
-func ToChanPair[T any](s sequence.Sequence[T]) <-chan sequence.Pair[T, error] {
-	ch := make(chan sequence.Pair[T, error])
+func ToChanPair[T any](s Sequence[T]) <-chan Pair[T, error] {
+	ch := make(chan Pair[T, error])
 	go IntoChanPair(ch, s)
 	return ch
 }
@@ -87,7 +98,7 @@ func ToChanPair[T any](s sequence.Sequence[T]) <-chan sequence.Pair[T, error] {
 // emitted from the input sequence, and the context will be cancelled if the
 // sequence returns an error. An input context is used as the basis of the
 // generated context, and can be used to cancel processing externally.
-func ToChanCtx[T any](ctx context.Context, s sequence.Sequence[T]) (<-chan T, context.Context) {
+func ToChanCtx[T any](ctx context.Context, s Sequence[T]) (<-chan T, context.Context) {
 	ch := make(chan T)
 	ctx, cncl := context.WithCancelCause(ctx)
 	go func() {
