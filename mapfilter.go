@@ -1,6 +1,4 @@
-package process
-
-import "github.com/cookieo9/sequence"
+package sequence
 
 // MapFilter performs both a [Map] and [Filter] operation on the input sequence
 // where the convert function returns both the new value, and a boolean to
@@ -8,7 +6,7 @@ import "github.com/cookieo9/sequence"
 //
 // MapFilter allows the callback to stop iteration with a generic error, or use
 // ErrStopIteration to simply indicate that no more values should be proceed.
-func MapFilter[In, Out any](s sequence.Sequence[In], convert func(In) (Out, bool, error)) sequence.Sequence[Out] {
+func MapFilter[In, Out any](s Sequence[In], convert func(In) (Out, bool, error)) Sequence[Out] {
 	return Process[In, Out](s, func(i In, f func(Out)) error {
 		out, ok, err := convert(i)
 		if ok && err == nil {
@@ -22,7 +20,7 @@ func MapFilter[In, Out any](s sequence.Sequence[In], convert func(In) (Out, bool
 // value is permuted by the provided convert function. The new sequence may
 // be of a different type due to the conversion, but will have the same number
 // of items.
-func Map[In, Out any](s sequence.Sequence[In], convert func(In) Out) sequence.Sequence[Out] {
+func Map[In, Out any](s Sequence[In], convert func(In) Out) Sequence[Out] {
 	return MapFilter(s, func(in In) (Out, bool, error) {
 		return convert(in), true, nil
 	})
@@ -35,7 +33,7 @@ func Map[In, Out any](s sequence.Sequence[In], convert func(In) Out) sequence.Se
 //
 // MapErr allows the callback to stop iteration with a generic error, or use
 // ErrStopIteration to simply indicate that no more values should be proceed.
-func MapErr[In, Out any](s sequence.Sequence[In], convert func(In) (Out, error)) sequence.Sequence[Out] {
+func MapErr[In, Out any](s Sequence[In], convert func(In) (Out, error)) Sequence[Out] {
 	return MapFilter(s, func(in In) (Out, bool, error) {
 		out, err := convert(in)
 		return out, true, err
@@ -45,7 +43,7 @@ func MapErr[In, Out any](s sequence.Sequence[In], convert func(In) (Out, error))
 // Filter takes an input sequence and creates a sequence where only the values
 // that pass the provided predicate function will be emitted. The ouput
 // sequence will be the same type as the input sequence.
-func Filter[T any](s sequence.Sequence[T], pred func(T) bool) sequence.Sequence[T] {
+func Filter[T any](s Sequence[T], pred func(T) bool) Sequence[T] {
 	return MapFilter(s, func(t T) (T, bool, error) { return t, pred(t), nil })
 }
 
@@ -55,6 +53,6 @@ func Filter[T any](s sequence.Sequence[T], pred func(T) bool) sequence.Sequence[
 //
 // FilterErr allows the callback to stop iteration with a generic error, or use
 // ErrStopIteration to simply indicate that no more values should be proceed.
-func FilterErr[T any](s sequence.Sequence[T], pred func(T) (bool, error)) sequence.Sequence[T] {
+func FilterErr[T any](s Sequence[T], pred func(T) (bool, error)) Sequence[T] {
 	return MapFilter(s, func(t T) (T, bool, error) { ok, err := pred(t); return t, ok, err })
 }

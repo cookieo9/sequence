@@ -1,4 +1,4 @@
-package build_test
+package extra
 
 import (
 	"errors"
@@ -8,9 +8,6 @@ import (
 	"testing/quick"
 
 	"github.com/cookieo9/sequence"
-	"github.com/cookieo9/sequence/convert/build"
-	"github.com/cookieo9/sequence/convert/extract"
-	"github.com/cookieo9/sequence/process"
 	"github.com/cookieo9/sequence/tools"
 )
 
@@ -25,7 +22,7 @@ func quickFunc(gen func(io.Reader) sequence.Sequence[string]) func([]string) (st
 		full := strings.Join(s, "\n")
 		seq := gen(strings.NewReader(full))
 		num := 0
-		result, err := extract.Collect(seq, "", func(line, merged string) string {
+		result, err := sequence.Collect(seq, "", func(line, merged string) string {
 			num++
 			return merged + line
 		})
@@ -36,7 +33,7 @@ func quickFunc(gen func(io.Reader) sequence.Sequence[string]) func([]string) (st
 
 func TestLines(t *testing.T) {
 	linesWrap := func(r io.Reader) sequence.Sequence[string] {
-		return build.Lines(r)
+		return Lines(r)
 	}
 	base := linesWrap
 	testCases := []struct {
@@ -44,8 +41,8 @@ func TestLines(t *testing.T) {
 		gen  func(io.Reader) sequence.Sequence[string]
 	}{
 		{"Lines", linesWrap},
-		{"Materialized", tools.Compose(linesWrap, sequence.Sequence[string].Materialize)},
-		{"Buffered", tools.Compose(linesWrap, process.Buffer[string])},
+		{"Materialized", tools.Compose(linesWrap, sequence.Materialize[string])},
+		{"Buffered", tools.Compose(linesWrap, Buffer[string])},
 	}
 
 	for _, tc := range testCases {
@@ -61,7 +58,7 @@ func TestLines(t *testing.T) {
 }
 
 func TestLinesBad(t *testing.T) {
-	seq := build.Lines(strings.NewReader(text))
+	seq := Lines(strings.NewReader(text))
 	coolErr := errors.New("my cool error")
 
 	err := sequence.Each(seq)(func(s string) error {
