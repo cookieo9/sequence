@@ -8,7 +8,7 @@ import (
 )
 
 func TestConcat(t *testing.T) {
-	a := FromSlice([]int{1, 2, 3})
+	a := New(1, 2, 3)
 	b := Repeat(4, 3)
 	ab := a.Concat(b)
 	want := []int{1, 2, 3, 4, 4, 4}
@@ -33,7 +33,7 @@ func TestConcat(t *testing.T) {
 }
 
 func TestFlatten(t *testing.T) {
-	seq := FromSlice([][]int{{1, 2, 3}, {6, 5, 4}})
+	seq := New([]int{1, 2, 3}, []int{6, 5, 4})
 	flat := Flatten(seq)
 	want := []int{1, 2, 3, 6, 5, 4}
 	got, err := flat.ToSlice()
