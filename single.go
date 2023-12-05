@@ -81,3 +81,13 @@ func Last[T any](s Sequence[T]) (T, error) {
 	err := EachSimple(s)(func(t T) bool { value = t; return true })
 	return value, err
 }
+
+// First is a helper method for the top level function [First].
+func (s Sequence[T]) First() (T, error) {
+	return First(s)
+}
+
+// Last is a helper method for the top level function [Last].
+func (s Sequence[T]) Last() (T, error) {
+	return Last(s)
+}
