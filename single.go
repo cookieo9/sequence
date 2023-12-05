@@ -17,14 +17,7 @@ func Infinite[T any](t T) Sequence[T] {
 // Repeat generates a sequence where the given item is returns a fixed number
 // of times.
 func Repeat[T any](t T, n int) Sequence[T] {
-	return Generate[T](func(f func(T) error) error {
-		for i := 0; i < n; i++ {
-			if err := f(t); err != nil {
-				return err
-			}
-		}
-		return nil
-	})
+	return Limit(Infinite(t), n)
 }
 
 // Single returns a sequence where the given value is returned once.
