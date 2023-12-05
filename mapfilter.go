@@ -56,3 +56,9 @@ func Filter[T any](s Sequence[T], pred func(T) bool) Sequence[T] {
 func FilterErr[T any](s Sequence[T], pred func(T) (bool, error)) Sequence[T] {
 	return MapFilter(s, func(t T) (T, bool, error) { ok, err := pred(t); return t, ok, err })
 }
+
+// Filter is a helper method that creates a new sequence via the top level
+// function [Filter] using the receiver and the given predicate function.
+func (s Sequence[T]) Filter(pred func(T) bool) Sequence[T] {
+	return Filter(s, pred)
+}
