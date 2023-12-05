@@ -10,7 +10,7 @@ import (
 func TestConcat(t *testing.T) {
 	a := FromSlice([]int{1, 2, 3})
 	b := Repeat(4, 3)
-	ab := a.Append(b)
+	ab := a.Concat(b)
 	want := []int{1, 2, 3, 4, 4, 4}
 	got, err := ab.ToSlice()
 	if err != nil {

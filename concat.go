@@ -24,9 +24,9 @@ func Flatten[T any, S ~[]T](src Sequence[S]) Sequence[T] {
 	})
 }
 
-// Append is a helper method which calls the top level function [Concat] to
-// build a combined sequence of receiver followed by the given sequences.
-func (s Sequence[T]) Append(next ...Sequence[T]) Sequence[T] {
+// Concat is a helper method which calls the top level function [Concat] to
+// build a combined sequence of receiver followed by the given sequence(s).
+func (s Sequence[T]) Concat(next ...Sequence[T]) Sequence[T] {
 	seqs := append([]Sequence[T]{s}, next...)
 	return Concat(seqs...)
 }
