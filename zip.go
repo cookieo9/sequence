@@ -44,34 +44,20 @@ func ZipShortest[A, B any](aSeq Sequence[A], bSeq Sequence[B]) Sequence[Pair[A, 
 	return zipCommon(aSeq, bSeq, true)
 }
 
-// FirstOnly takes a sequence of Pair values, and returns a sequence of just
+// PairSelectA takes a sequence of Pair values, and returns a sequence of just
 // the first value from each pair.
-func FirstOnly[A, B any](s Sequence[Pair[A, B]]) Sequence[A] {
+func PairSelectA[A, B any](s Sequence[Pair[A, B]]) Sequence[A] {
 	return Map(s, Pair[A, B].A)
 }
 
-// SecondOnly takes a sequence of Pair values, and returns a sequence of just
+// PairSelectB takes a sequence of Pair values, and returns a sequence of just
 // the second value from each pair.
-func SecondOnly[A, B any](s Sequence[Pair[A, B]]) Sequence[B] {
+func PairSelectB[A, B any](s Sequence[Pair[A, B]]) Sequence[B] {
 	return Map(s, Pair[A, B].B)
 }
 
-// AddFirst creates a sequence where each item is a pair of a constant value
-// and a value from a given sequence. The constant value is the first item
-// in the pair.
-func AddFirst[A, T any](a A, s Sequence[T]) Sequence[Pair[A, T]] {
-	return Zip[A, T](Infinite(a), s)
-}
-
-// AddSecond creates a sequence where each item is a pair of a constant value
-// and a value from a given sequence. The constant value is the second item
-// in the pair.
-func AddSecond[T, B any](s Sequence[T], b B) Sequence[Pair[T, B]] {
-	return Zip[T, B](s, Infinite(b))
-}
-
-// SwapPairs processes a sequence with Pair[A,B] elements to produce one where
+// PairSwap processes a sequence with Pair[A,B] elements to produce one where
 // the elements in the pair are swapped (i.e. Pair[B,A]).
-func SwapPairs[A, B any](s Sequence[Pair[A, B]]) Sequence[Pair[B, A]] {
+func PairSwap[A, B any](s Sequence[Pair[A, B]]) Sequence[Pair[B, A]] {
 	return Map(s, Pair[A, B].Swap)
 }
