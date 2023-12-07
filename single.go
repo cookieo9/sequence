@@ -89,3 +89,9 @@ func (s Sequence[T]) First() (T, error) {
 func (s Sequence[T]) Last() (T, error) {
 	return Last(s)
 }
+
+// Sum is a helper function for a sequence of arithmetic values that produces
+// the sum of the entire sequence.
+func Sum[T tools.Arithmetic](s Sequence[T]) (T, error) {
+	return Collect(s, T(0), tools.Add)
+}
