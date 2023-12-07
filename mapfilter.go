@@ -52,7 +52,6 @@ func Filter[T any](s Sequence[T], pred func(T) bool) Sequence[T] {
 			return nil
 		})
 	})
-	// return MapFilter(s, func(t T) (T, bool, error) { return t, pred(t), nil })
 }
 
 // FilterErr takes an input sequence and creates a sequence where only the
