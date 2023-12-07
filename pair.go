@@ -1,5 +1,7 @@
 package sequence
 
+import "fmt"
+
 // A Pair is a 2 element tuple containing values of independant types.
 type Pair[A, B any] struct {
 	a A
@@ -23,3 +25,8 @@ func (p Pair[A, B]) BA() (B, A) { return p.b, p.a }
 
 // Swap retuns a new pair where the elements of the current pair are swapped.
 func (p Pair[A, B]) Swap() Pair[B, A] { return MakePair(p.BA()) }
+
+// String returns a string representation of this pair.
+func (p Pair[A, B]) String() string {
+	return fmt.Sprintf("(%v, %v)", p.a, p.b)
+}

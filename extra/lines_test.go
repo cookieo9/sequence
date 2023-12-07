@@ -42,7 +42,7 @@ func TestLines(t *testing.T) {
 	}{
 		{"Lines", linesWrap},
 		{"Materialized", tools.Compose(linesWrap, sequence.Materialize[string])},
-		{"Buffered", tools.Compose(linesWrap, Buffer[string])},
+		{"Buffered", tools.Compose(linesWrap, sequence.Buffer[string])},
 	}
 
 	for _, tc := range testCases {

@@ -5,9 +5,12 @@ import (
 )
 
 func zipCommon[A, B any](aSeq Sequence[A], bSeq Sequence[B], shortest bool) Sequence[Pair[A, B]] {
-	aCh := ToChanPair(aSeq)
-	bCh := ToChanPair(bSeq)
-	return Generate(func(f func(Pair[A, B]) error) error {
+	s := Generate(func(f func(Pair[A, B]) error) error {
+		aCh := make(chan Pair[A, error], 1)
+		go IntoChanPair(aCh, aSeq)
+		bCh := make(chan Pair[B, error], 1)
+		go IntoChanPair(bCh, bSeq)
+
 		for {
 			aP, aOk := <-aCh
 			bP, bOk := <-bCh
@@ -29,19 +32,26 @@ func zipCommon[A, B any](aSeq Sequence[A], bSeq Sequence[B], shortest bool) Sequ
 		}
 		return nil
 	})
+	if aSeq.IsVolatile() || bSeq.IsVolatile() {
+		return Volatile(s)
+	}
+	return s
 }
 
 // Zip combines two input sequences into a sequence of Pairs where each pair
 // contains an item from the first sequence matched up with one from the second
-// sequence. When one seqence ends, the zipped sequence continues producing
-// Pairs where one element is the zero value until both sequences are finished.
+// sequence. When one seqence ends, the zipped sequence stops.
+//
+// If at least one sequence is volatile then the output sequence will be as
+// well.
 func Zip[A, B any](aSeq Sequence[A], bSeq Sequence[B]) Sequence[Pair[A, B]] {
-	return zipCommon(aSeq, bSeq, false)
+	return zipCommon(aSeq, bSeq, true)
 }
 
-// ZipShortest is like [Zip], but stops once one sequence is empty.
-func ZipShortest[A, B any](aSeq Sequence[A], bSeq Sequence[B]) Sequence[Pair[A, B]] {
-	return zipCommon(aSeq, bSeq, true)
+// ZipLongest is like [Zip], but when the shorter sequence ends the output
+// uses a zero value in it's place while the longer sequence continues.
+func ZipLongest[A, B any](aSeq Sequence[A], bSeq Sequence[B]) Sequence[Pair[A, B]] {
+	return zipCommon(aSeq, bSeq, false)
 }
 
 // PairSelectA takes a sequence of Pair values, and returns a sequence of just
