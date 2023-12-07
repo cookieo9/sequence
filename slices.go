@@ -12,7 +12,7 @@ func (s Sequence[T]) ToSlice() ([]T, error) {
 // appended to the provided destination slice. The resulting final
 // slice is returned.
 func Append[S ~[]T, T any](dst S, s Sequence[T]) (S, error) {
-	err := EachSimple(s)(func(t T) bool {
+	err := EachSimple(s.Sync())(func(t T) bool {
 		dst = append(dst, t)
 		return true
 	})
