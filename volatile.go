@@ -24,10 +24,8 @@ func Volatile[T any](s Sequence[T]) Sequence[T] {
 	var (
 		used bool
 		lock sync.Mutex
-		v    Sequence[T]
 	)
-	v.volatile = true
-	v.source = func(f func(T) error) error {
+	v := Derive(s, func(f func(T) error) error {
 		lock.Lock()
 		if used {
 			lock.Unlock()
@@ -35,7 +33,8 @@ func Volatile[T any](s Sequence[T]) Sequence[T] {
 		}
 		used = true
 		lock.Unlock()
-		return s.source(f)
-	}
+		return s.Each(f)
+	})
+	v.volatile = true
 	return v
 }
