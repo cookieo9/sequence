@@ -53,7 +53,7 @@ func compareSequences[T comparable](t *testing.T, got, want Sequence[T], opts ..
 		t.Errorf("problem converting want sequence to slice: %v", err)
 	}
 
-	if diff := cmp.Diff(gotSlice, wantSlice); diff != "" {
+	if diff := cmp.Diff(gotSlice, wantSlice, opts...); diff != "" {
 		t.Errorf("unexpect diff when comparing sequences (-got, +want):\n%s", diff)
 	}
 }
