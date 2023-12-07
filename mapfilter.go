@@ -44,7 +44,15 @@ func MapErr[In, Out any](s Sequence[In], convert func(In) (Out, error)) Sequence
 // that pass the provided predicate function will be emitted. The ouput
 // sequence will be the same type as the input sequence.
 func Filter[T any](s Sequence[T], pred func(T) bool) Sequence[T] {
-	return MapFilter(s, func(t T) (T, bool, error) { return t, pred(t), nil })
+	return Derive[T](s, func(f func(T) error) error {
+		return s.Each(func(t T) error {
+			if pred(t) {
+				return f(t)
+			}
+			return nil
+		})
+	})
+	// return MapFilter(s, func(t T) (T, bool, error) { return t, pred(t), nil })
 }
 
 // FilterErr takes an input sequence and creates a sequence where only the
