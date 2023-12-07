@@ -42,17 +42,14 @@ func zipCommon[A, B any](aSeq Sequence[A], bSeq Sequence[B], shortest bool) Sequ
 // contains an item from the first sequence matched up with one from the second
 // sequence. When one seqence ends, the zipped sequence stops.
 //
-// If either input sequence produces unstable results (e.g. was asynchronous
-// upstream), then the produced pairs won't be consistent either, similarly
-// if at least one sequence is volatile then the output sequence will be as
-// well. The resulting sequence will be marked Volatile if either of these
-// conditions is true.
+// If at least one sequence is volatile then the output sequence will be as
+// well.
 func Zip[A, B any](aSeq Sequence[A], bSeq Sequence[B]) Sequence[Pair[A, B]] {
 	return zipCommon(aSeq, bSeq, true)
 }
 
 // ZipLongest is like [Zip], but when the shorter sequence ends the output
-// uses a zero value while the longer sequence continues.
+// uses a zero value in it's place while the longer sequence continues.
 func ZipLongest[A, B any](aSeq Sequence[A], bSeq Sequence[B]) Sequence[Pair[A, B]] {
 	return zipCommon(aSeq, bSeq, false)
 }
