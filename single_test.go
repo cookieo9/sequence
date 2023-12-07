@@ -13,9 +13,10 @@ func TestMinMax(t *testing.T) {
 		min, max int
 		err      error
 	}{
-		{name: "empty", seq: New[int]()},
+		{name: "empty", seq: New[int](), err: ErrEmptySequence},
 		{name: "pi", seq: New(3, 1, 4, 1, 5, 9, 2, 6, 5, 3, 5), min: 1, max: 9},
 		{name: "err", seq: Error[int](testErr), err: testErr},
+		{name: "nums+err", seq: Concat(New(1, 2, 3), Error[int](testErr)), err: testErr},
 	}
 
 	for _, tc := range testCases {
@@ -26,7 +27,7 @@ func TestMinMax(t *testing.T) {
 			wantMax := tc.max
 			less := func(x, y int) bool { return x < y }
 
-			minFunc, err := MinFunc(seq, less)
+			minFunc, err := MinFunc(Volatile(seq), less)
 			if err != tc.err {
 				t.Errorf("unexpected error difference for MinFunc; got %v, want %v", err, tc.err)
 			}
@@ -34,7 +35,7 @@ func TestMinMax(t *testing.T) {
 				t.Errorf("unexpected difference for MinFunc; got %v, want %v", minFunc, wantMin)
 			}
 
-			minCmp, err := Min(seq)
+			minCmp, err := Min(Volatile(seq))
 			if err != tc.err {
 				t.Errorf("unexpected error difference for Min; got %v, want %v", err, tc.err)
 			}
@@ -42,7 +43,7 @@ func TestMinMax(t *testing.T) {
 				t.Errorf("unexpected difference for Min; got %v, want %v", minCmp, wantMin)
 			}
 
-			maxFunc, err := MaxFunc(seq, less)
+			maxFunc, err := MaxFunc(Volatile(seq), less)
 			if err != tc.err {
 				t.Errorf("unexpected error difference for MaxFunc; got %v, want %v", err, tc.err)
 			}
@@ -50,7 +51,7 @@ func TestMinMax(t *testing.T) {
 				t.Errorf("unexpected difference for MaxFunc; got %v, want %v", maxFunc, wantMax)
 			}
 
-			maxCmp, err := Max(seq)
+			maxCmp, err := Max(Volatile(seq))
 			if err != tc.err {
 				t.Errorf("unexpected error difference for Max; got %v, want %v", err, tc.err)
 			}

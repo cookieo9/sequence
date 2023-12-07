@@ -108,48 +108,80 @@ func Product[T tools.Arithmetic](s Sequence[T]) (T, error) {
 
 // Max returns the smallest item from the sequence of cmp.Ordered items.
 func Max[T cmp.Ordered](s Sequence[T]) (T, error) {
-	first, err := First(s)
-	if err != nil {
-		return *new(T), err
-	}
-	return Collect(s, first, func(x, m T) T {
-		return max(x, m)
+	var (
+		empty    = true
+		maxValue T
+	)
+	err := EachSimple(s)(func(t T) bool {
+		if empty {
+			empty = false
+			maxValue = t
+			return true
+		}
+		maxValue = max(maxValue, t)
+		return true
 	})
+	err = tools.Pick(err == nil && empty, ErrEmptySequence, err)
+	return tools.CleanErrors(maxValue, err)
 }
 
 // MaxFunc returns the largest item from the sequence as determined by the
 // provided comparision function. The comparison must return true if
 // the first value is strictly less than the second.
 func MaxFunc[T any](s Sequence[T], less func(x, y T) bool) (T, error) {
-	first, err := First[T](s)
-	if err != nil {
-		return *new(T), err
-	}
-	return Collect(s, first, func(y, x T) T {
-		return tools.Pick(less(x, y), y, x)
+	var (
+		empty    = true
+		maxValue T
+	)
+	err := EachSimple(s)(func(t T) bool {
+		if empty {
+			empty = false
+			maxValue = t
+			return true
+		}
+		maxValue = tools.Pick(less(maxValue, t), t, maxValue)
+		return true
 	})
+	err = tools.Pick(err == nil && empty, ErrEmptySequence, err)
+	return tools.CleanErrors(maxValue, err)
 }
 
 // Min returns the smallest item from the sequence of cmp.Ordered items.
 func Min[T cmp.Ordered](s Sequence[T]) (T, error) {
-	first, err := First(s)
-	if err != nil {
-		return *new(T), err
-	}
-	return Collect(s, first, func(x, m T) T {
-		return min(x, m)
+	var (
+		empty    = true
+		minValue T
+	)
+	err := EachSimple(s)(func(t T) bool {
+		if empty {
+			empty = false
+			minValue = t
+			return true
+		}
+		minValue = min(minValue, t)
+		return true
 	})
+	err = tools.Pick(err == nil && empty, ErrEmptySequence, err)
+	return tools.CleanErrors(minValue, err)
 }
 
 // MinFunc returns the smallest item from the sequence as determined by the
 // provided comparision function. The comparison must return true if
 // the first value is strictly less than the second.
 func MinFunc[T any](s Sequence[T], less func(x, y T) bool) (T, error) {
-	first, err := First[T](s)
-	if err != nil {
-		return *new(T), err
-	}
-	return Collect(s, first, func(y, x T) T {
-		return tools.Pick(less(y, x), y, x)
+	var (
+		empty    = true
+		minValue T
+	)
+	err := EachSimple(s)(func(t T) bool {
+		if empty {
+			empty = false
+			minValue = t
+			return true
+		}
+		minValue = tools.Pick(less(t, minValue), t, minValue)
+		return true
 	})
+	err = tools.Pick(err == nil && empty, ErrEmptySequence, err)
+	return tools.CleanErrors(minValue, err)
 }
