@@ -1,6 +1,10 @@
 package sequence
 
-import "github.com/cookieo9/sequence/tools"
+import (
+	"cmp"
+
+	"github.com/cookieo9/sequence/tools"
+)
 
 // Infinite generates a sequence where the given value is returned forever, on
 // each iteration of the sequence.
@@ -94,4 +98,58 @@ func (s Sequence[T]) Last() (T, error) {
 // the sum of the entire sequence.
 func Sum[T tools.Arithmetic](s Sequence[T]) (T, error) {
 	return Collect(s, T(0), tools.Add)
+}
+
+// Product is a helper function for a sequence of arithmetic values that
+// returns the product of all values in the sequence.
+func Product[T tools.Arithmetic](s Sequence[T]) (T, error) {
+	return Collect(s, T(1), tools.Mul)
+}
+
+// Max returns the smallest item from the sequence of cmp.Ordered items.
+func Max[T cmp.Ordered](s Sequence[T]) (T, error) {
+	first, err := First(s)
+	if err != nil {
+		return *new(T), err
+	}
+	return Collect(s, first, func(x, m T) T {
+		return max(x, m)
+	})
+}
+
+// MaxFunc returns the largest item from the sequence as determined by the
+// provided comparision function. The comparison must return true if
+// the first value is strictly less than the second.
+func MaxFunc[T any](s Sequence[T], less func(x, y T) bool) (T, error) {
+	first, err := First[T](s)
+	if err != nil {
+		return *new(T), err
+	}
+	return Collect(s, first, func(y, x T) T {
+		return tools.Pick(less(x, y), y, x)
+	})
+}
+
+// Min returns the smallest item from the sequence of cmp.Ordered items.
+func Min[T cmp.Ordered](s Sequence[T]) (T, error) {
+	first, err := First(s)
+	if err != nil {
+		return *new(T), err
+	}
+	return Collect(s, first, func(x, m T) T {
+		return min(x, m)
+	})
+}
+
+// MinFunc returns the smallest item from the sequence as determined by the
+// provided comparision function. The comparison must return true if
+// the first value is strictly less than the second.
+func MinFunc[T any](s Sequence[T], less func(x, y T) bool) (T, error) {
+	first, err := First[T](s)
+	if err != nil {
+		return *new(T), err
+	}
+	return Collect(s, first, func(y, x T) T {
+		return tools.Pick(less(y, x), y, x)
+	})
 }
