@@ -41,8 +41,10 @@ func New[T any](items ...T) Sequence[T] {
 //
 // The properties that are copied include:
 //   - volatile
+//   - async
 func Derive[Out, In any](input Sequence[In], f func(func(Out) error) error) Sequence[Out] {
 	out := Generate(f)
+	out.async = input.async
 	out.volatile = input.volatile
 	return out
 }

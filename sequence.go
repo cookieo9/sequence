@@ -16,6 +16,7 @@ var (
 type Sequence[T any] struct {
 	source   func(func(T) error) error
 	volatile bool
+	async    bool
 }
 
 // IsVolatile returns true if the sequence is volatile, meaning that it should
@@ -23,6 +24,10 @@ type Sequence[T any] struct {
 // more than once. Volatile sequences can be created with the [Volatlie]
 // function.
 func (s Sequence[T]) IsVolatile() bool { return s.volatile }
+
+// IsAsync will return true if the sequence will asynchronously generate values
+// during iteration.
+func (s Sequence[T]) IsAsync() bool { return s.async }
 
 // Each iterates over every item in the sequence calling the passed callback
 // with each item. An error returned from the callback, or one that arose from
