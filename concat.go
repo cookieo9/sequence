@@ -5,7 +5,7 @@ package sequence
 func Concat[T any](seqs ...Sequence[T]) Sequence[T] {
 	return Generate(func(f func(T) error) error {
 		for _, seq := range seqs {
-			if err := Each(seq)(f); err != nil {
+			if err := seq.Each(f); err != nil {
 				return err
 			}
 		}

@@ -34,8 +34,8 @@ func TestConcat(t *testing.T) {
 
 func TestFlatten(t *testing.T) {
 	seq := New([]int{1, 2, 3}, []int{6, 5, 4})
-	flat := Flatten(seq)
-	want := []int{1, 2, 3, 6, 5, 4}
+	flat := Flatten(seq).Limit(5)
+	want := []int{1, 2, 3, 6, 5}
 	got, err := flat.ToSlice()
 	if err != nil {
 		t.Errorf("unexpected error upon conversion to slice: %v", err)
