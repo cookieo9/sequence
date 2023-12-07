@@ -79,7 +79,15 @@ func (s Sequence[T]) Async() Sequence[T] {
 
 // Sync creates a new sequence where the iteration is guaranteed to produce
 // values synchronously for downstream use. It's a no-op if the sequence is
-// not asynchronous.
+// not asynchronous. This is to allow downstream processing to not have to
+// worry about synchronizing access to local state, as the callback will only
+// ever have one call in-flight at any time at the cost of this coarse-grained
+// locking. Downstream code that is already thread-safe doesn't need to call
+// sync in this case, and may see performance benefits.
+//
+// Note: Async sequences are also volatile, and using Sync doesn't change that,
+// so you still need to either only iterate once or use [Materialize]/[Buffer]
+// to create a non-volatile sequence.
 func Sync[T any](s Sequence[T]) Sequence[T] {
 	if !s.IsAsync() {
 		return s
