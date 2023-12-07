@@ -26,3 +26,23 @@ func GenerateVolatile[T any](f func(func(T) error) error) Sequence[T] {
 func New[T any](items ...T) Sequence[T] {
 	return FromSlice(items)
 }
+
+// Derive creates a new sequence where the properties of the input sequence are
+// copied over to the created sequence. This makes sense when permuting a
+// sequence as it will usually have the same properties.
+//
+// For example: using Map to permute a Volatile sequence results in the output
+// sequence being Volatile as well.
+//
+// The "sequence function" passed as parameter is the same as for [Generate],
+// and neither its element type nor that of the returned sequence need to match
+// the input sequence. The sole purpose of the input sequence is to provide the
+// sequence properties for the output.
+//
+// The properties that are copied include:
+//   - volatile
+func Derive[Out, In any](input Sequence[In], f func(func(Out) error) error) Sequence[Out] {
+	out := Generate(f)
+	out.volatile = input.volatile
+	return out
+}
