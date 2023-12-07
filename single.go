@@ -112,7 +112,7 @@ func Max[T cmp.Ordered](s Sequence[T]) (T, error) {
 		empty    = true
 		maxValue T
 	)
-	err := EachSimple(s)(func(t T) bool {
+	err := EachSimple(s.Sync())(func(t T) bool {
 		if empty {
 			empty = false
 			maxValue = t
@@ -133,7 +133,7 @@ func MaxFunc[T any](s Sequence[T], less func(x, y T) bool) (T, error) {
 		empty    = true
 		maxValue T
 	)
-	err := EachSimple(s)(func(t T) bool {
+	err := EachSimple(s.Sync())(func(t T) bool {
 		if empty {
 			empty = false
 			maxValue = t
@@ -152,7 +152,7 @@ func Min[T cmp.Ordered](s Sequence[T]) (T, error) {
 		empty    = true
 		minValue T
 	)
-	err := EachSimple(s)(func(t T) bool {
+	err := EachSimple(s.Sync())(func(t T) bool {
 		if empty {
 			empty = false
 			minValue = t
@@ -173,7 +173,7 @@ func MinFunc[T any](s Sequence[T], less func(x, y T) bool) (T, error) {
 		empty    = true
 		minValue T
 	)
-	err := EachSimple(s)(func(t T) bool {
+	err := EachSimple(s.Sync())(func(t T) bool {
 		if empty {
 			empty = false
 			minValue = t
