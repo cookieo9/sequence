@@ -1,5 +1,7 @@
 package sequence
 
+import "sync"
+
 // Materialize returns a new sequence where all the data (including any error)
 // from the current sequence is cached and played back on each iteration.
 //
@@ -30,4 +32,24 @@ func Materialize[T any](s Sequence[T]) Sequence[T] {
 // [Materialize] on this sequence.
 func (s Sequence[T]) Materialize() Sequence[T] {
 	return Materialize(s)
+}
+
+// Buffer is an alternative to the Materialize method that waits until the
+// sequence is accessed before creating the cached copy. This means that there
+// is basically no cost in computation or memory if the sequence hasn't been
+// used yet.
+func Buffer[T any](s Sequence[T]) Sequence[T] {
+	seqGen := sync.OnceValue(func() Sequence[T] {
+		return s.Materialize()
+	})
+
+	return Generate[T](func(f func(T) error) error {
+		return seqGen().Each(f)
+	})
+}
+
+// Buffer is a helper method to call the package function [Buffer] on the
+// receiver.
+func (s Sequence[T]) Buffer() Sequence[T] {
+	return Buffer(s)
 }
