@@ -7,12 +7,17 @@ package sequence
 // MapFilter allows the callback to stop iteration with a generic error, or use
 // ErrStopIteration to simply indicate that no more values should be proceed.
 func MapFilter[In, Out any](s Sequence[In], convert func(In) (Out, bool, error)) Sequence[Out] {
-	return Process[In, Out](s, func(i In, f func(Out)) error {
-		out, ok, err := convert(i)
-		if ok && err == nil {
-			f(out)
-		}
-		return err
+	return Derive(s, func(f func(Out) error) error {
+		return s.Each(func(i In) error {
+			out, ok, err := convert(i)
+			if err != nil {
+				return err
+			}
+			if ok {
+				return f(out)
+			}
+			return nil
+		})
 	})
 }
 
