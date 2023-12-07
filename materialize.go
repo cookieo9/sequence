@@ -14,10 +14,11 @@ import "sync"
 // once, as Materialize otherwise requires the time to iterate the sequence to
 // be created.
 //
-// Otherwise, it's other main use is to overcome the limitations of volatile
-// sequences.
+// The resulting sequence is neither volatile, nor asynchronous, although an
+// asynchronous input will mean the values stored for playback will be in a
+// non-deterministic order.
 func Materialize[T any](s Sequence[T]) Sequence[T] {
-	data, srcErr := ToSlice(s)
+	data, srcErr := ToSlice(s.Sync())
 	return Generate[T](func(f func(T) error) error {
 		for _, x := range data {
 			if err := f(x); err != nil {

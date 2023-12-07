@@ -34,12 +34,14 @@ func Error[T any](err error) Sequence[T] {
 // CollectErr produces a single value from a sequence. It starts with an
 // initial output value, and for every item in the sequence the value is
 // permuted by the process function using the item from the sequence and the
-// current value.
+// current value. CollectErr uses [Sync] to synchronize updating the value
+// but there is no guarantee that the processing step will happen in the same
+// order.
 //
 // The callback may return errors to stop processing, either to indicate
 // failure, or in the case of ErrStopIteration to simply end processing.
 func CollectErr[T, U any](s Sequence[T], initial U, process func(T, U) (U, error)) (U, error) {
-	err := Each(s)(func(t T) error {
+	err := Each(s.Sync())(func(t T) error {
 		var err error
 		initial, err = process(t, initial)
 		return err
@@ -50,6 +52,8 @@ func CollectErr[T, U any](s Sequence[T], initial U, process func(T, U) (U, error
 // Collect produces a single value from a sequence. It starts with an initial
 // output value, and for every item in the sequence the value is permuted by
 // the process function using the item from the sequence and the current value.
+// Collect uses [Sync] to synchronize updating the accumulated value, but the
+// order of updates is non-deterministic.
 func Collect[T, U any](s Sequence[T], initial U, process func(T, U) U) (U, error) {
 	return CollectErr[T, U](s, initial, func(t T, u U) (U, error) {
 		return process(t, u), nil
@@ -57,10 +61,11 @@ func Collect[T, U any](s Sequence[T], initial U, process func(T, U) U) (U, error
 }
 
 // First returns the first value from the given sequence, or an error if even
-// that isn't possible.
+// that isn't possible. The results of first are not deterministic for an
+// asynchronous sequence.
 func First[T any](s Sequence[T]) (T, error) {
 	var value T
-	err := EachSimple(s)(func(t T) bool { value = t; return false })
+	err := EachSimple(s.Sync())(func(t T) bool { value = t; return false })
 	return tools.CleanErrors(value, err)
 }
 
@@ -71,7 +76,7 @@ func First[T any](s Sequence[T]) (T, error) {
 // will still be suppressed as normal as it indicates early exit without error.
 func Last[T any](s Sequence[T]) (T, error) {
 	var value T
-	err := EachSimple(s)(func(t T) bool { value = t; return true })
+	err := EachSimple(s.Sync())(func(t T) bool { value = t; return true })
 	return value, err
 }
 
