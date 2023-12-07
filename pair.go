@@ -1,6 +1,9 @@
 package sequence
 
-import "fmt"
+import (
+	"cmp"
+	"fmt"
+)
 
 // A Pair is a 2 element tuple containing values of independant types.
 type Pair[A, B any] struct {
@@ -29,4 +32,28 @@ func (p Pair[A, B]) Swap() Pair[B, A] { return MakePair(p.BA()) }
 // String returns a string representation of this pair.
 func (p Pair[A, B]) String() string {
 	return fmt.Sprintf("(%v, %v)", p.a, p.b)
+}
+
+// PairCompare compares two Pair values with the same element types provided
+// both items in the pair are a cmp.Ordered type.  The comparison first looks
+// at the first (A) value, and if equal, moves on to the second (B) value.
+func PairCompare[A, B cmp.Ordered](a, b Pair[A, B]) int {
+	if c := cmp.Compare(a.a, b.a); c != 0 {
+		return c
+	}
+	return cmp.Compare(a.b, b.b)
+}
+
+// PairCompareFirst compares 2 pairs by only their first elements using
+// cmp.Compare. The second element of the Pair is completely ignored for the
+// purpose of the comparison.
+func PairCompareFirst[A cmp.Ordered, B any](a, b Pair[A, B]) int {
+	return cmp.Compare(a.a, b.a)
+}
+
+// PairCompareSecond compares 2 pairs by only their second elements using
+// cmp.Compare. The first element of the Pair is completely ignored for the
+// purpose of the comparison.
+func PairCompareSecond[A, B cmp.Ordered](a, b Pair[A, B]) int {
+	return cmp.Compare(a.b, b.b)
 }
