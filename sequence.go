@@ -8,6 +8,10 @@ var (
 	// ErrStopIteration is used by iteration callbacks to indicate that
 	// the iteration should be stopped early, but there was no other issue.
 	ErrStopIteration = errors.New("iteration stopped")
+
+	// ErrEmptySequence is returned when an operation expects a non-empty
+	// sequence, but doesn't get one.
+	ErrEmptySequence = errors.New("empty sequence")
 )
 
 // A Sequence represents a functionally immutable series of values. The
