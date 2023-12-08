@@ -54,6 +54,14 @@ func ZipLongest[A, B any](aSeq Sequence[A], bSeq Sequence[B]) Sequence[Pair[A, B
 	return zipCommon(aSeq, bSeq, false)
 }
 
+// Unzip takes a sequence of pairs and returns two sequences, one containing
+// the first item of each pair, the other containing the second of each pair.
+func Unzip[A, B any](s Sequence[Pair[A, B]]) (Sequence[A], Sequence[B]) {
+	aS := Map(s, Pair[A, B].A)
+	bS := Map(s, Pair[A, B].B)
+	return aS, bS
+}
+
 // PairSelectA takes a sequence of Pair values, and returns a sequence of just
 // the first value from each pair.
 func PairSelectA[A, B any](s Sequence[Pair[A, B]]) Sequence[A] {
