@@ -59,3 +59,7 @@ func compareSequences[T comparable](tb testing.TB, got, want Sequence[T], opts .
 		tb.Errorf("unexpect diff when comparing sequences (-got, +want):\n%s", diff)
 	}
 }
+
+func sequenceCompareTest[T comparable](got, want Sequence[T], opts ...cmp.Option) func(t *testing.T) {
+	return func(t *testing.T) { compareSequences(t, got, want, opts...) }
+}
