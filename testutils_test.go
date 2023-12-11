@@ -40,20 +40,22 @@ func (s *Set[T]) AddMany(xs ...T) {
 	}
 }
 
-func compareSequences[T comparable](t *testing.T, got, want Sequence[T], opts ...cmp.Option) {
-	t.Helper()
+func compareSequences[T comparable](tb testing.TB, got, want Sequence[T], opts ...cmp.Option) {
+	tb.Helper()
 
 	gotSlice, err := ToSlice(got)
 	if err != nil {
-		t.Errorf("problem converting got sequence to slice: %v", err)
+		tb.Errorf("problem converting got sequence to slice: %v", err)
 	}
+	tb.Logf("Got: %v (err: %v)", gotSlice, err)
 
 	wantSlice, err := ToSlice[T](want)
 	if err != nil {
-		t.Errorf("problem converting want sequence to slice: %v", err)
+		tb.Errorf("problem converting want sequence to slice: %v", err)
 	}
+	tb.Logf("Want: %v (err: %v)", wantSlice, err)
 
 	if diff := cmp.Diff(gotSlice, wantSlice, opts...); diff != "" {
-		t.Errorf("unexpect diff when comparing sequences (-got, +want):\n%s", diff)
+		tb.Errorf("unexpect diff when comparing sequences (-got, +want):\n%s", diff)
 	}
 }
