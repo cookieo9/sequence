@@ -47,3 +47,23 @@ func Simulate[T any](prev Sequence[T], step func(T) (T, bool)) Sequence[T] {
 func (s Sequence[T]) Simulate(step func(T) (T, bool)) Sequence[T] {
 	return Simulate(s, step)
 }
+
+// SimulateOne is like [Simulate] except that a single step is unconditionally
+// done, producing a sequence that has one more element than the input. The new
+// sequence is produced using [Derive] so will retain the properties of the
+// input sequence.
+func SimulateOne[T any](prev Sequence[T], step func(T) T) Sequence[T] {
+	return Derive(prev, func(f func(T) error) error {
+		var last T
+		if err := prev.Each(func(t T) error { last = t; return f(t) }); err != nil {
+			return err
+		}
+		return f(step(last))
+	})
+}
+
+// SimulateOne is a helper method to call the package function [SimulateOne] on
+// the receiver to produce a sequence with a simulated value added to the end.
+func (s Sequence[T]) SimulateOne(step func(T) T) Sequence[T] {
+	return SimulateOne(s, step)
+}
