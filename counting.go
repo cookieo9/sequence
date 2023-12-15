@@ -39,13 +39,18 @@ func NumberSequence[T tools.Integer | tools.Real](start, stop, step T) Sequence[
 	})
 }
 
-// Count returns the number of items in the given sequence, and an error if any
-// are produced while iterating the sequence.
-func Count[T any](s Sequence[T]) (int, error) {
+// Count returns a Result with the number of items in the given sequence,
+// or an error if one was produced while iterating the sequence.
+func Count[T any](s Sequence[T]) Result[int] {
 	var n int
 	err := EachSimple(s)(func(t T) bool {
 		n++
 		return true
 	})
-	return n, err
+	return MakeResult(n, err)
+}
+
+// Count is a helper to call the package function [Count] on the receiver.
+func (s Sequence[T]) Count() Result[int] {
+	return Count(s)
 }
