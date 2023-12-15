@@ -43,13 +43,13 @@ func (s *Set[T]) AddMany(xs ...T) {
 func compareSequences[T comparable](tb testing.TB, got, want Sequence[T], opts ...cmp.Option) {
 	tb.Helper()
 
-	gotSlice, err := ToSlice(got)
+	gotSlice, err := ToSlice(got).Pair()
 	if err != nil {
 		tb.Errorf("problem converting got sequence to slice: %v", err)
 	}
 	tb.Logf("Got: %v (err: %v)", gotSlice, err)
 
-	wantSlice, err := ToSlice[T](want)
+	wantSlice, err := ToSlice[T](want).Pair()
 	if err != nil {
 		tb.Errorf("problem converting want sequence to slice: %v", err)
 	}

@@ -11,7 +11,7 @@ import (
 // Note: This function must read and store the entire sequence prior to sorting
 // it, which may be an issue for large/infinite sequences.
 func SortOrdered[T cmp.Ordered](s Sequence[T]) Sequence[T] {
-	data, err := s.ToSlice()
+	data, err := s.ToSlice().Pair()
 	if err != nil {
 		return Error[T](err)
 	}
@@ -27,7 +27,7 @@ func SortOrdered[T cmp.Ordered](s Sequence[T]) Sequence[T] {
 // Note: This function must read and store the entire sequence prior to sorting
 // it, which may be an issue for large/infinite sequences.
 func Sort[T any](s Sequence[T], cmp func(a, b T) int) Sequence[T] {
-	data, err := s.ToSlice()
+	data, err := s.ToSlice().Pair()
 	if err != nil {
 		return Error[T](err)
 	}
@@ -46,7 +46,7 @@ func (s Sequence[T]) Sort(cmp func(T, T) int) Sequence[T] {
 // Note: This function must read and store the entire sequence prior to sorting
 // it, which may be an issue for large/infinite sequences.
 func SortStable[T any](s Sequence[T], cmp func(a, b T) int) Sequence[T] {
-	data, err := s.ToSlice()
+	data, err := s.ToSlice().Pair()
 	if err != nil {
 		return Error[T](err)
 	}
@@ -66,7 +66,7 @@ func (s Sequence[T]) SortStable(cmp func(T, T) int) Sequence[T] {
 // Note: This function must read and store the entire sequence prior to
 // reversing it, which may be an issue for large/infinite sequences.
 func Reverse[T any](s Sequence[T]) Sequence[T] {
-	data, err := s.ToSlice()
+	data, err := s.ToSlice().Pair()
 	if err != nil {
 		return Error[T](err)
 	}

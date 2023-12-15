@@ -18,7 +18,7 @@ import "sync"
 // asynchronous input will mean the values stored for playback will be in a
 // non-deterministic order.
 func Materialize[T any](s Sequence[T]) Sequence[T] {
-	data, srcErr := ToSlice(s.Sync())
+	data, srcErr := ToSlice(s.Sync()).Pair()
 	return Generate[T](func(f func(T) error) error {
 		for _, x := range data {
 			if err := f(x); err != nil {

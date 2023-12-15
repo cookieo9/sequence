@@ -12,7 +12,7 @@ func TestScanAndSum(t *testing.T) {
 	scn := seq.Scan(1, tools.Mul[int])
 
 	scnWant := []int{1, 2, 6, 24, 120}
-	scnGot, err := scn.ToSlice()
+	scnGot, err := scn.ToSlice().Pair()
 	if err != nil {
 		t.Errorf("unexpected error converting scan to slice: %v", err)
 	}

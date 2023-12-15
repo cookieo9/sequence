@@ -3,7 +3,6 @@ package sequence
 import (
 	"testing"
 
-	"github.com/cookieo9/sequence/tools"
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
 )
@@ -15,7 +14,7 @@ func TestZip(t *testing.T) {
 	opt := cmpopts.EquateComparable(Pair[int, string]{})
 
 	short := Zip(seq1, seq2)
-	gotShort := tools.Must(short.ToSlice())
+	gotShort := short.ToSlice().Value()
 	wantShort := []Pair[int, string]{{1, "one"}, {2, "two"}, {3, "three"}}
 
 	if diff := cmp.Diff(gotShort, wantShort, opt); diff != "" {
@@ -23,7 +22,7 @@ func TestZip(t *testing.T) {
 	}
 
 	long := ZipLongest(seq1, seq2)
-	gotLong := tools.Must(long.ToSlice())
+	gotLong := long.ToSlice().Value()
 	wantLong := []Pair[int, string]{{1, "one"}, {2, "two"}, {3, "three"}, {4, ""}}
 
 	if diff := cmp.Diff(gotLong, wantLong, opt); diff != "" {
