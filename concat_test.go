@@ -12,7 +12,7 @@ func TestConcat(t *testing.T) {
 	b := Repeat(4, 3)
 	ab := a.Concat(b)
 	want := []int{1, 2, 3, 4, 4, 4}
-	got, err := ab.ToSlice()
+	got, err := ab.ToSlice().Pair()
 	if err != nil {
 		t.Errorf("unexpected error upon conversion to slice: %v", err)
 	}
@@ -23,7 +23,7 @@ func TestConcat(t *testing.T) {
 	wantErr := errors.New("my wonderful error")
 	eSeq := Error[int](wantErr)
 	aeb := Concat(a, eSeq, b)
-	result, err := ToSlice(aeb)
+	result, err := ToSlice(aeb).Pair()
 	if err != wantErr {
 		t.Errorf("error mismatch, got %v, want %v", err, wantErr)
 	}
@@ -36,7 +36,7 @@ func TestFlatten(t *testing.T) {
 	seq := New([]int{1, 2, 3}, []int{6, 5, 4})
 	flat := Flatten(seq).Limit(5)
 	want := []int{1, 2, 3, 6, 5}
-	got, err := flat.ToSlice()
+	got, err := flat.ToSlice().Pair()
 	if err != nil {
 		t.Errorf("unexpected error upon conversion to slice: %v", err)
 	}
