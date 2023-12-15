@@ -27,7 +27,7 @@ func TestMinMax(t *testing.T) {
 			wantMax := tc.max
 			less := func(x, y int) bool { return x < y }
 
-			minFunc, err := MinFunc(Volatile(seq), less)
+			minFunc, err := MinFunc(Volatile(seq), less).Pair()
 			if err != tc.err {
 				t.Errorf("unexpected error difference for MinFunc; got %v, want %v", err, tc.err)
 			}
@@ -35,7 +35,7 @@ func TestMinMax(t *testing.T) {
 				t.Errorf("unexpected difference for MinFunc; got %v, want %v", minFunc, wantMin)
 			}
 
-			minCmp, err := Min(Volatile(seq))
+			minCmp, err := Min(Volatile(seq)).Pair()
 			if err != tc.err {
 				t.Errorf("unexpected error difference for Min; got %v, want %v", err, tc.err)
 			}
@@ -43,7 +43,7 @@ func TestMinMax(t *testing.T) {
 				t.Errorf("unexpected difference for Min; got %v, want %v", minCmp, wantMin)
 			}
 
-			maxFunc, err := MaxFunc(Volatile(seq), less)
+			maxFunc, err := MaxFunc(Volatile(seq), less).Pair()
 			if err != tc.err {
 				t.Errorf("unexpected error difference for MaxFunc; got %v, want %v", err, tc.err)
 			}
@@ -51,7 +51,7 @@ func TestMinMax(t *testing.T) {
 				t.Errorf("unexpected difference for MaxFunc; got %v, want %v", maxFunc, wantMax)
 			}
 
-			maxCmp, err := Max(Volatile(seq))
+			maxCmp, err := Max(Volatile(seq)).Pair()
 			if err != tc.err {
 				t.Errorf("unexpected error difference for Max; got %v, want %v", err, tc.err)
 			}

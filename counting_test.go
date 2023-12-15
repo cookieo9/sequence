@@ -18,25 +18,25 @@ func TestCounting(t *testing.T) {
 
 	compareSequences(t, limited, numSeq)
 
-	first := tools.Must(First(numSeq))
+	first := First(numSeq).Value()
 	wantFirst := 5
 	if first != wantFirst {
 		t.Errorf("unexpected difference for First(); got: %v, want: %v", first, wantFirst)
 	}
 
-	last := tools.Must(Last(numSeq))
+	last := Last(numSeq).Value()
 	wantLast := 1_000_004
 	if last != wantLast {
 		t.Errorf("unexpected difference for Last(); got: %v, want: %v", last, wantLast)
 	}
 
-	count := tools.Must(Count(numSeq))
+	count := Count(numSeq).Value()
 	wantCount := 1_000_000
 	if count != wantCount {
 		t.Errorf("unexpected difference for Count(); got: %v, want: %v", count, wantCount)
 	}
 
-	sum := tools.Must(Sum(numSeq))
+	sum := Sum(numSeq).Value()
 	wantSum := euler(5, 1_000_004)
 	if sum != wantSum {
 		t.Errorf("unexpected difference for Sum(); got: %v, want: %v", sum, wantSum)
@@ -53,14 +53,14 @@ func TestBadNumberSequences(t *testing.T) {
 	compareSequences(t, empty, New[int]())
 
 	inf := NumberSequence(0, 10, 0)
-	sum, err := Sum(inf)
+	sum, err := Sum(inf).Pair()
 	t.Logf("Sum(inf): %v %v", sum, err)
 	if err == nil {
 		t.Error("expected error, but none provided from Sum(inf)")
 	}
 
 	rev := NumberSequence(10, 0, -1)
-	sum, err = Sum(rev)
+	sum, err = Sum(rev).Pair()
 	t.Logf("Sum(rev): %v %v", sum, err)
 	if err == nil {
 		t.Error("expected error, but none provided from Sum(rev)")

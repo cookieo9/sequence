@@ -21,7 +21,7 @@ func TestScanAndSum(t *testing.T) {
 	}
 
 	sumWant := 15
-	sumGot, err := Sum(seq)
+	sumGot, err := Sum(seq).Pair()
 	if err != nil {
 		t.Errorf("unexpected error computing sum: %v", err)
 	}

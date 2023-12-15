@@ -1,7 +1,5 @@
 package sequence
 
-import "github.com/cookieo9/sequence/tools"
-
 // FromMap creates a sequence of pairs, where the first item in the pair is a
 // key from the map, and the second item is the value for that key.
 // The sequence is Volatile, since multiple iterations could produce different
@@ -29,12 +27,13 @@ func IntoMap[M ~map[K]V, K comparable, V any](dst M, s Sequence[Pair[K, V]]) err
 	})
 }
 
-// ToMap creates a map from the given sequence of Pairs. The first element in
-// each pair must be comparable, since it must become a map key. An error
-// during processing will return a nil map in addition to the error. If you
-// wish to get a partially complete map on error, use [IntoMap].
-func ToMap[K comparable, V any](s Sequence[Pair[K, V]]) (map[K]V, error) {
+// ToMap creates a map from the given sequence of Pairs, and returning it in a
+// Result. The first element in each pair must be comparable, since it must
+// become a map key. Earlier items with the same key will be replaced by later
+// items in the sequence. If an error occurs, the value of the Result will
+// contain all the items processed so far.
+func ToMap[K comparable, V any](s Sequence[Pair[K, V]]) Result[map[K]V] {
 	m := map[K]V{}
 	err := IntoMap(m, s)
-	return tools.CleanErrors(m, err)
+	return MakeResult(m, err)
 }

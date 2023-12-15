@@ -7,7 +7,7 @@ import (
 	"github.com/cookieo9/sequence/tools"
 )
 
-func AtomicSum[T tools.Arithmetic](s Sequence[T]) (T, error) {
+func AtomicSum[T tools.Arithmetic](s Sequence[T]) Result[T] {
 	var sum atomic.Value
 	sum.Store(T(0))
 	err := EachSimple(s)(func(t T) bool {
@@ -18,23 +18,23 @@ func AtomicSum[T tools.Arithmetic](s Sequence[T]) (T, error) {
 			}
 		}
 	})
-	return tools.CleanErrors(sum.Load().(T), err)
+	return MakeResult(sum.Load().(T), err)
 }
 
-func AtomicIntSum(s Sequence[int64]) (int64, error) {
+func AtomicIntSum(s Sequence[int64]) Result[int64] {
 	var sum atomic.Int64
 	err := EachSimple(s)(func(i int64) bool {
 		sum.Add(i)
 		return true
 	})
-	return tools.CleanErrors(sum.Load(), err)
+	return MakeResult(sum.Load(), err)
 }
 
 func TestAsync(t *testing.T) {
 	numbers := NumberSequence[int64](0, 1_000_000, 1)
 
-	want := tools.Must(Sum(numbers))
-	sum := tools.Must(Sum(numbers.Async().Sync()))
+	want := Sum(numbers)
+	sum := Sum(numbers.Async().Sync())
 
 	if sum != want {
 		t.Errorf("mismatch in sum, got %d, want %d", sum, want)
@@ -50,37 +50,37 @@ func BenchmarkAsync(b *testing.B) {
 
 	b.Run("Sum", func(b *testing.B) {
 		for i := 0; i < b.N; i++ {
-			tools.Must(Sum(numbers))
+			Sum(numbers).Value()
 		}
 	})
 
 	b.Run("Sync+Sum", func(b *testing.B) {
 		for i := 0; i < b.N; i++ {
-			tools.Must(Sum(numbers.Async().Sync()))
+			Sum(numbers.Async().Sync()).Value()
 		}
 	})
 
 	b.Run("AtomicSum", func(b *testing.B) {
 		for i := 0; i < b.N; i++ {
-			tools.Must(AtomicSum(numbers))
+			AtomicSum(numbers).Value()
 		}
 	})
 
 	b.Run("Async+AtomicSum", func(b *testing.B) {
 		for i := 0; i < b.N; i++ {
-			tools.Must(AtomicSum(numbers.Async()))
+			AtomicSum(numbers.Async()).Value()
 		}
 	})
 
 	b.Run("AtomicIntSum", func(b *testing.B) {
 		for i := 0; i < b.N; i++ {
-			tools.Must(AtomicIntSum(numbers))
+			AtomicIntSum(numbers).Value()
 		}
 	})
 
 	b.Run("Async+AtomicIntSum", func(b *testing.B) {
 		for i := 0; i < b.N; i++ {
-			tools.Must(AtomicIntSum(numbers.Async()))
+			AtomicIntSum(numbers.Async()).Value()
 		}
 	})
 

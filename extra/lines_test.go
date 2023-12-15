@@ -22,12 +22,11 @@ func quickFunc(gen func(io.Reader) sequence.Sequence[string]) func([]string) (st
 		full := strings.Join(s, "\n")
 		seq := gen(strings.NewReader(full))
 		num := 0
-		result, err := sequence.Collect(seq, "", func(line, merged string) string {
+		result := sequence.Collect(seq, "", func(line, merged string) string {
 			num++
 			return merged + line
 		})
-		tools.Check(err)
-		return result, num
+		return result.Value(), num
 	}
 }
 

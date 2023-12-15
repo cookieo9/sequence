@@ -3,7 +3,6 @@ package sequence
 import (
 	"testing"
 
-	"github.com/cookieo9/sequence/tools"
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
 )
@@ -60,28 +59,28 @@ func BenchmarkSimulate(b *testing.B) {
 	seq := Simulation(start, sim)
 	b.Run("Simulation", func(b *testing.B) {
 		for i := 0; i < b.N; i++ {
-			_ = tools.Must(seq.Last())
+			_ = seq.Last().Value()
 		}
 	})
 
 	seq2 := Single(start).Simulate(sim)
 	b.Run("Single+Simulate", func(b *testing.B) {
 		for i := 0; i < b.N; i++ {
-			_ = tools.Must(seq2.Last())
+			_ = seq2.Last().Value()
 		}
 	})
 
 	mSeq := seq.Materialize()
 	b.Run("Simulation+Materialize", func(b *testing.B) {
 		for i := 0; i < b.N; i++ {
-			_ = tools.Must(mSeq.Last())
+			_ = mSeq.Last().Value()
 		}
 	})
 
 	mSeq2 := seq2.Materialize()
 	b.Run("Single+Simulate+Materialize", func(b *testing.B) {
 		for i := 0; i < b.N; i++ {
-			_ = tools.Must(mSeq2.Last())
+			_ = mSeq2.Last().Value()
 		}
 	})
 }
