@@ -68,13 +68,25 @@ func MakeResult[T any](value T, err error) Result[T] {
 	return Result[T]{value: value, err: err}
 }
 
-// NextResult accepts a result, and a function that will process the value
-// stored within, to produce a new result value. If the input result has
+// NextResultErr accepts a [Result], and a function that will process the value
+// stored within, to produce a new [Result] value. If the input [Result] has
 // an error, no work is done other than propogating the error to the output
-// result value.
-func NextResult[In, Out any](in Result[In], f func(In) (Out, error)) Result[Out] {
+// [Result] value. Otherwise the return values of the callback produces a
+// value/error [Result].
+func NextResultErr[In, Out any](in Result[In], f func(In) (Out, error)) Result[Out] {
 	if in.HasError() {
 		return ResultError[Out](in.Error())
 	}
 	return MakeResult(f(in.Value()))
+}
+
+// NextResult accepts a [Result], and a function that will process the value
+// stored within, to produce a new [Result] value. If the input [Result] has
+// an error, no work is done other than propogating the error to the output
+// [Result] value.
+func NextResult[In, Out any](in Result[In], f func(In) Out) Result[Out] {
+	if in.HasError() {
+		return ResultError[Out](in.Error())
+	}
+	return ResultValue(f(in.Value()))
 }
