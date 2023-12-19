@@ -19,3 +19,13 @@ func TestUntil(t *testing.T) {
 
 	compareSequences(t, got, want)
 }
+
+func TestLimit(t *testing.T) {
+	c := Counter(0).
+		Filter(func(i int) bool { return i&1 == 1 }).
+		Limit(10)
+	want := NumberSequence(1, 1_000_000_000_000, 2).
+		Limit(10)
+
+	compareSequences(t, c, want)
+}
