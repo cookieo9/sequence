@@ -74,3 +74,13 @@ func FilterErr[T any](s Sequence[T], pred func(T) (bool, error)) Sequence[T] {
 func (s Sequence[T]) Filter(pred func(T) bool) Sequence[T] {
 	return Filter(s, pred)
 }
+
+// Map is a helper method that creates a new sequence via the top level
+// function [Map] using the receiver and the given convert function.
+//
+// Go doesn't allow new type parameters to be added in a method, so we
+// can't produce a sequence of a different type, unlike the top level
+// function.
+func (s Sequence[T]) Map(convert func(T) T) Sequence[T] {
+	return Map(s, convert)
+}
