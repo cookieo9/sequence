@@ -1,6 +1,7 @@
 package sequence
 
 import (
+	"errors"
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
@@ -58,6 +59,20 @@ func compareSequences[T comparable](tb testing.TB, got, want Sequence[T], opts .
 	if diff := cmp.Diff(gotSlice, wantSlice, opts...); diff != "" {
 		tb.Errorf("unexpect diff when comparing sequences (-got, +want):\n%s", diff)
 	}
+}
+
+func checkErrorSequence[T comparable](tb testing.TB, got Sequence[T], expected error) error {
+	tb.Helper()
+	err := got.Each(func(t T) error { return nil })
+	if err == nil {
+		tb.Error("expect error when processing sequence")
+	}
+	if expected != nil {
+		if !errors.Is(err, expected) {
+			tb.Errorf("expect error to be %v, but got %v", expected, err)
+		}
+	}
+	return err
 }
 
 func sequenceCompareTest[T comparable](got, want Sequence[T], opts ...cmp.Option) func(t *testing.T) {

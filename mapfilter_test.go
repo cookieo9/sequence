@@ -1,10 +1,99 @@
 package sequence
 
 import (
+	"errors"
+	"strconv"
 	"testing"
 
 	"github.com/cookieo9/sequence/tools"
 )
+
+func TestMap(t *testing.T) {
+	t.Run("Basic", func(t *testing.T) {
+		input := New(1, 2, 3)
+		expected := New(2, 4, 6)
+
+		result := input.Map(func(i int) int { return i * 2 })
+		compareSequences(t, result, expected)
+	})
+
+	t.Run("Empty", func(t *testing.T) {
+		input := New[int]()
+		expected := New[int]()
+		result := input.Map(func(i int) int { return i * 2 })
+		compareSequences(t, result, expected)
+	})
+
+	t.Run("Nil", func(t *testing.T) {
+		input := New[int](1, 2, 3)
+		defer func() {
+			if r := recover(); r == nil {
+				t.Errorf("Map didn't panic")
+			} else {
+				t.Log("Map panicked as expected: ", r)
+			}
+		}()
+
+		result := input.Map(nil)
+		compareSequences(t, result, input)
+	})
+}
+
+func TestMapErr(t *testing.T) {
+
+	t.Run("Valid", func(t *testing.T) {
+		input := New("1", "2", "3")
+		expected := New(1, 2, 3)
+		result := MapErr(input, strconv.Atoi)
+		compareSequences(t, result, expected)
+	})
+
+	t.Run("Invalid", func(t *testing.T) {
+		input := New("1", "abc", "3")
+		result := MapErr(input, strconv.Atoi)
+		err := checkErrorSequence(t, result, strconv.ErrSyntax)
+		t.Log("Error: ", err)
+	})
+
+}
+
+func TestFilterErr(t *testing.T) {
+	t.Run("basic filter", func(t *testing.T) {
+		input := New(1, 2, 3, 4)
+		expected := New(2, 4)
+
+		result := FilterErr(input, func(i int) (bool, error) {
+			return i%2 == 0, nil
+		})
+		compareSequences(t, result, expected)
+	})
+
+	t.Run("filter error", func(t *testing.T) {
+		input := New(1, 2, 3, 4)
+
+		errTest := errors.New("test error")
+		result := FilterErr(input, func(i int) (bool, error) {
+			if i == 3 {
+				return false, errTest
+			}
+			return true, nil
+		})
+
+		err := checkErrorSequence(t, result, errTest)
+		t.Log("Error: ", err)
+	})
+
+	t.Run("empty", func(t *testing.T) {
+		input := New[int]()
+		expected := New[int]()
+
+		result := FilterErr(input, func(i int) (bool, error) {
+			return true, nil
+		})
+
+		compareSequences(t, result, expected)
+	})
+}
 
 func BenchmarkMap(b *testing.B) {
 	b.Run("RawSingle", func(b *testing.B) {
