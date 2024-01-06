@@ -53,16 +53,8 @@ func TestBadNumberSequences(t *testing.T) {
 	compareSequences(t, empty, New[int]())
 
 	inf := NumberSequence(0, 10, 0)
-	sum, err := Sum(inf).Pair()
-	t.Logf("Sum(inf): %v %v", sum, err)
-	if err == nil {
-		t.Error("expected error, but none provided from Sum(inf)")
-	}
+	_ = checkErrorSequence(t, inf, nil)
 
 	rev := NumberSequence(10, 0, -1)
-	sum, err = Sum(rev).Pair()
-	t.Logf("Sum(rev): %v %v", sum, err)
-	if err == nil {
-		t.Error("expected error, but none provided from Sum(rev)")
-	}
+	_ = checkErrorSequence(t, rev, nil)
 }

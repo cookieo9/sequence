@@ -94,6 +94,7 @@ func checkErrorSequence[T comparable](tb testing.TB, got Sequence[T], expected e
 			tb.Errorf("expect error to be %v, but got %v", expected, err)
 		}
 	}
+	tb.Log("Got error: ", err)
 	return err
 }
 

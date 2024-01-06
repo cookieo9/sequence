@@ -51,8 +51,7 @@ func TestMapErr(t *testing.T) {
 	t.Run("Invalid", func(t *testing.T) {
 		input := New("1", "abc", "3")
 		result := MapErr(input, strconv.Atoi)
-		err := checkErrorSequence(t, result, strconv.ErrSyntax)
-		t.Log("Error: ", err)
+		_ = checkErrorSequence(t, result, strconv.ErrSyntax)
 	})
 
 }
@@ -79,8 +78,7 @@ func TestFilterErr(t *testing.T) {
 			return true, nil
 		})
 
-		err := checkErrorSequence(t, result, errTest)
-		t.Log("Error: ", err)
+		_ = checkErrorSequence(t, result, errTest)
 	})
 
 	t.Run("empty", func(t *testing.T) {
